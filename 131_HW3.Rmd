@@ -4,7 +4,15 @@ output: github_document
 ---
 
 ```{r setup, include=FALSE}
+library(knitr)
 knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(cache.extra = rand_seed)
 ```
 
+```{r}
+library(tidyverse)
+library(tidymodels)
+titanic <- read_csv("/Users/zackreardon/Downloads/homework-3-2/data/titanic.csv")
+```
 
+Question 1.
