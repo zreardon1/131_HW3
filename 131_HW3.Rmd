@@ -32,4 +32,4 @@ print(tr/(tr+tt))
 
 titanic_train # look at training data
 ```
-There appears to be some missing data regarding the age of some passengers. It is a good idea to use stratified sampling for this data since the purpose of the model is to predict survival categorizations. By stratifying the data on the survival variable, there exists a similar proportion of each categorization in the training and testing sets which allows for a more effective model.
+There appears to be some missing data regarding the age of some passengers as well as the cabin number. It is a good idea to use stratified sampling for this data since the purpose of the model is to predict survival categorizations. By stratifying the data on the survival variable, there exists a similar proportion of each categorization in the training and testing sets which allows for a more effective model.
