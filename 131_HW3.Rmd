@@ -20,8 +20,16 @@ Question 1.
 ```{r}
 set.seed(100)
 
-titanic_split <- initial_split(titanic, prop = 0.8, strata = "survived")
+titanic_split <- initial_split(titanic, prop = 0.70, strata = survived)
 
 titanic_train <- training(titanic_split)
 titanic_test <- testing(titanic_split)
+
+tr <- nrow(titanic_train) # determine number of observations
+tt <- nrow(titanic_test) # determine number of observations
+
+print(tr/(tr+tt))
+
+titanic_train # look at training data
 ```
+There appears to be some missing data regarding the age of some passengers. It is a good idea to use stratified sampling for this data since the purpose of the model is to predict survival categorizations. By stratifying the data on the survival variable, there exists a similar proportion of each categorization in the training and testing sets which allows for a more effective model.
