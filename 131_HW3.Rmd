@@ -1,5 +1,6 @@
 ---
 title: "131_HW3"
+author: "Zack Reardon"
 output: github_document
 ---
 
@@ -12,7 +13,12 @@ knitr::opts_chunk$set(cache.extra = rand_seed)
 ```{r, message=FALSE}
 library(tidyverse)
 library(tidymodels)
+library(corrr)
 titanic <- read_csv("/Users/zackreardon/Downloads/homework-3/data/titanic.csv")
+
+# converting to factors
+titanic$survived <- as.factor(titanic$survived)
+titanic$pclass <- as.factor(titanic$pclass)
 ```
 
 Question 1.
@@ -33,3 +39,29 @@ print(tr/(tr+tt))
 titanic_train # look at training data
 ```
 There appears to be some missing data regarding the age of some passengers as well as the cabin number. It is a good idea to use stratified sampling for this data since the purpose of the model is to predict survival categorizations. By stratifying the data on the survival variable, there exists a similar proportion of each categorization in the training and testing sets which allows for a more effective model.
+
+Question 2.
+
+```{r}
+ggplot(titanic_train, aes(x=survived)) + geom_bar()
+```
+
+The distribution of the outcome variable in the training set indicates that between 3/2 and double the amount of people who survived did not survive.
+
+Question 3.
+
+```{r}
+cor_titanic <- titanic_train %>%
+  select(is.numeric) %>%
+  correlate()
+rplot(cor_titanic)
+```
+
+Age and siblings/spouses are negatively correlated as well as parents/children and age. Parents/children and siblings/spouses, fare and siblings/spouses, and fare and parents/children are positively correlated.
+
+Question 4.
+
+```{r}
+titanic_recipe <- recipe(survived ~ pclass + sex + age + sib_sp + parch + fare, data = titanic_train)
+
+```
