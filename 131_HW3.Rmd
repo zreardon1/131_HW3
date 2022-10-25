@@ -9,10 +9,19 @@ knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_chunk$set(cache.extra = rand_seed)
 ```
 
-```{r}
+```{r, message=FALSE}
 library(tidyverse)
 library(tidymodels)
-titanic <- read_csv("/Users/zackreardon/Downloads/homework-3-2/data/titanic.csv")
+titanic <- read_csv("/Users/zackreardon/Downloads/homework-3/data/titanic.csv")
 ```
 
 Question 1.
+
+```{r}
+set.seed(100)
+
+titanic_split <- initial_split(titanic, prop = 0.8, strata = "survived")
+
+titanic_train <- training(titanic_split)
+titanic_test <- testing(titanic_split)
+```
