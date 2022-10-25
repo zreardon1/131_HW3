@@ -62,6 +62,37 @@ Age and siblings/spouses are negatively correlated as well as parents/children a
 Question 4.
 
 ```{r}
-titanic_recipe <- recipe(survived ~ pclass + sex + age + sib_sp + parch + fare, data = titanic_train)
+titanic_recipe <- recipe(survived ~ pclass + sex + age + sib_sp + parch + fare, data = titanic_train) %>%
+  step_impute_linear() %>%
+  step_dummy(all_nominal_predictors()) %>%
+  step_interact(~ starts_with("sex"):fare) %>%
+  step_interact(~ age:fare)
+```
 
+Question 5.
+
+```{r}
+log_reg <- logistic_reg() %>% 
+  set_engine("glm") %>% 
+  set_mode("classification")
+
+log_wkflow <- workflow() %>% 
+  add_model(log_reg) %>% 
+  add_recipe(titanic_recipe)
+
+log_fit <- fit(log_wkflow, titanic_train)
+```
+
+Question 6.
+
+```{r}
+lda_mod <- discrim_linear() %>% 
+  set_mode("classification") %>% 
+  set_engine("MASS")
+
+lda_wkflow <- workflow() %>% 
+  add_model(lda_mod) %>% 
+  add_recipe(titanic_recipe)
+
+lda_fit <- fit(lda_wkflow, titanic_train)
 ```
