@@ -14,6 +14,12 @@ knitr::opts_chunk$set(cache.extra = rand_seed)
 library(tidyverse)
 library(tidymodels)
 library(corrr)
+library(discrim)
+library(klaR)
+library(poissonreg)
+library(pROC)
+tidymodels_prefer()
+
 titanic <- read_csv("/Users/zackreardon/Downloads/homework-3/data/titanic.csv")
 
 # converting to factors
@@ -80,7 +86,7 @@ log_wkflow <- workflow() %>%
   add_model(log_reg) %>% 
   add_recipe(titanic_recipe)
 
-#log_fit <- fit(log_wkflow, titanic_train)
+log_fit <- fit(log_wkflow, titanic_train)
 ```
 
 Question 6.
@@ -94,7 +100,7 @@ lda_wkflow <- workflow() %>%
   add_model(lda_mod) %>%
   add_recipe(titanic_recipe)
 
-#lda_fit <- fit(lda_wkflow, titanic_train)
+lda_fit <- fit(lda_wkflow, titanic_train)
 ```
 
 Question 7.
@@ -108,7 +114,7 @@ qda_wkflow <- workflow() %>%
   add_model(qda_mod) %>% 
   add_recipe(titanic_recipe)
 
-#qda_fit <- fit(qda_wkflow, titanic_train)
+qda_fit <- fit(qda_wkflow, titanic_train)
 ```
 
 Question 8.
@@ -116,12 +122,60 @@ Question 8.
 ```{r}
 nb_mod <- naive_Bayes() %>% 
   set_mode("classification") %>% 
-  set_engine("klaR") %>% 
-  set_args(usekernel = FALSE) 
+  set_engine("klaR") %>%
+  set_args(usekernel = FALSE)
 
 nb_wkflow <- workflow() %>% 
   add_model(nb_mod) %>% 
   add_recipe(titanic_recipe)
 
-#nb_fit <- fit(nb_wkflow, titanic_train)
+nb_fit <- fit(nb_wkflow, titanic_train)
+```
+
+Question 9.
+
+```{r, warning=FALSE}
+log <- predict(log_fit, new_data = titanic_train, type = "prob")
+lda <- predict(lda_fit, new_data = titanic_train, type = "prob")
+qda <- predict(qda_fit, new_data = titanic_train, type = "prob")
+nb <- predict(nb_fit, new_data = titanic_train, type = "prob")
+bind_cols(log, lda, qda, nb, .name_repair="minimal")
+
+log <- augment(log_fit, new_data = titanic_train) %>%
+  accuracy(truth = survived, estimate = .pred_class)
+lda <- augment(lda_fit, new_data = titanic_train) %>%
+  accuracy(truth = survived, estimate = .pred_class)
+qda <- augment(qda_fit, new_data = titanic_train) %>%
+  accuracy(truth = survived, estimate = .pred_class)
+nb <- augment(nb_fit, new_data = titanic_train) %>%
+  accuracy(truth = survived, estimate = .pred_class)
+
+accuracies <- c(log$.estimate, lda$.estimate, 
+                qda$.estimate, nb$.estimate)
+models <- c("Logistic Regression", "LDA", "QDA", "Naive Bayes")
+results <- tibble(accuracies = accuracies, models = models)
+results %>% 
+  arrange(-accuracies)
+```
+The logistic regression had the highest accuracy on the training data.
+
+Question 10.
+
+```{r}
+predict(log_fit, new_data = titanic_test, type = "prob")
+
+# report accuracy of model on testing data
+augment(log_fit, new_data = titanic_test) %>%
+  accuracy(truth = survived, estimate = .pred_class)
+
+augment(log_fit, new_data = titanic_test) %>%
+  conf_mat(truth = survived, estimate = .pred_class) %>%
+  autoplot(type = "heatmap")
+
+augment(log_fit, new_data = titanic_test) %>%
+  roc_curve(survived, .pred_Yes) %>%
+  autoplot()
+
+# calculate AUC
+
 ```
