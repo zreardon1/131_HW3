@@ -63,7 +63,7 @@ Question 4.
 
 ```{r}
 titanic_recipe <- recipe(survived ~ pclass + sex + age + sib_sp + parch + fare, data = titanic_train) %>%
-  step_impute_linear() %>%
+  step_impute_linear(age, impute_with = imp_vars(all_predictors())) %>%
   step_dummy(all_nominal_predictors()) %>%
   step_interact(~ starts_with("sex"):fare) %>%
   step_interact(~ age:fare)
@@ -80,19 +80,48 @@ log_wkflow <- workflow() %>%
   add_model(log_reg) %>% 
   add_recipe(titanic_recipe)
 
-log_fit <- fit(log_wkflow, titanic_train)
+#log_fit <- fit(log_wkflow, titanic_train)
 ```
 
 Question 6.
 
 ```{r}
 lda_mod <- discrim_linear() %>% 
-  set_mode("classification") %>% 
+  set_mode("classification") %>%
   set_engine("MASS")
 
 lda_wkflow <- workflow() %>% 
-  add_model(lda_mod) %>% 
+  add_model(lda_mod) %>%
   add_recipe(titanic_recipe)
 
-lda_fit <- fit(lda_wkflow, titanic_train)
+#lda_fit <- fit(lda_wkflow, titanic_train)
+```
+
+Question 7.
+
+```{r}
+qda_mod <- discrim_quad() %>% 
+  set_mode("classification") %>% 
+  set_engine("MASS")
+
+qda_wkflow <- workflow() %>% 
+  add_model(qda_mod) %>% 
+  add_recipe(titanic_recipe)
+
+#qda_fit <- fit(qda_wkflow, titanic_train)
+```
+
+Question 8.
+
+```{r}
+nb_mod <- naive_Bayes() %>% 
+  set_mode("classification") %>% 
+  set_engine("klaR") %>% 
+  set_args(usekernel = FALSE) 
+
+nb_wkflow <- workflow() %>% 
+  add_model(nb_mod) %>% 
+  add_recipe(titanic_recipe)
+
+#nb_fit <- fit(nb_wkflow, titanic_train)
 ```
